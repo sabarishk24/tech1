@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-display: "Manrope", "Noto Sans Tamil", "Noto Sans Devanagari", sans-serif;
+  --font-sans: "Inter", "Noto Sans Tamil", "Noto Sans Devanagari", sans-serif;
+
+  --color-primary: #2E7D32;
+  --color-primary-dark: #1B5E20;
+  --color-primary-light: #4CAF50;
+  --color-teal: #00695C;
+  --color-teal-light: #26A69A;
+  --color-earth: #8D6E63;
+  --color-background: #F7F4EE;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F0ECE4;
+  --color-text: #1A1A1A;
+  --color-text-muted: #6B7280;
+  --color-muted: #9CA3AF;
+  --color-border: #E5DDD4;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background-color: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }
+
+/* Safe area for iOS bottom nav */
+.safe-area-pb { padding-bottom: env(safe-area-inset-bottom); }
+.pb-safe { padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem); }
+
+/* Slide-in animation */
+@keyframes slide-in-from-bottom-4 {
+  from { transform: translateY(1rem); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-in { animation-fill-mode: both; }
+.slide-in-from-bottom-4 { animation-name: slide-in-from-bottom-4; }
+.duration-300 { animation-duration: 300ms; }
+
+/* Remove number input arrows */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+
+/* Range input */
+input[type=range] { appearance: none; height: 6px; border-radius: 99px; background: var(--color-border); outline: none; }
+input[type=range]::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; border-radius: 50%; background: currentColor; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
