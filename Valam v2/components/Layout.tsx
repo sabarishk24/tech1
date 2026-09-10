@@ -2,6 +2,7 @@ import React from 'react';
 import { useApp } from '../context';
 import { Screen } from '../types';
 import valamLogo from '../imports/WhatsApp_Image_2026-09-10_at_12.25.49_AM.jpeg';
+import { applyGooglePageTranslation } from '../googleTranslate';
 import {
   BellIcon, BookIcon, BundleIcon, CalculatorIcon, CartIcon,
   ChevronRightIcon, FarmIcon, GlobeIcon, HomeIcon, LeafIcon,
@@ -54,6 +55,9 @@ const LANGUAGES = [
   { code: 'en' as const, label: 'EN' },
   { code: 'ta' as const, label: 'தமிழ்' },
   { code: 'hi' as const, label: 'हिं' },
+  { code: 'te' as const, label: 'తె' },
+  { code: 'kn' as const, label: 'ಕಂ' },
+  { code: 'ml' as const, label: 'മ' },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -110,7 +114,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-sm font-semibold text-text truncate">{user?.name ?? 'Arjun Kumar'}</div>
-              <div className="text-[11px] text-muted">Farmer</div>
+              <div className="text-[11px] text-muted">{t('profile.farmer')}</div>
             </div>
           </div>
         </div>
@@ -132,7 +136,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             {LANGUAGES.map(l => (
               <button
                 key={l.code}
-                onClick={() => setLanguage(l.code)}
+                onClick={async () => {
+                  await setLanguage(l.code);
+                  applyGooglePageTranslation(l.code);
+                }}
                 className={`px-2 py-1 text-[11px] font-semibold rounded-[8px] transition-all ${language === l.code ? 'bg-primary text-white shadow-sm' : 'text-muted hover:text-text'}`}
               >
                 {l.label}
@@ -239,7 +246,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 {LANGUAGES.map(l => (
                   <button
                     key={l.code}
-                    onClick={() => { setLanguage(l.code); }}
+                    onClick={async () => {
+                      await setLanguage(l.code);
+                      applyGooglePageTranslation(l.code);
+                    }}
                     className={`flex-1 py-2 rounded-[10px] text-sm font-bold transition-all ${language === l.code ? 'bg-primary text-white' : 'bg-surface-2 text-text'}`}
                   >
                     {l.label}

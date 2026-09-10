@@ -10,6 +10,19 @@
   <body>
     <!-- figma:body-start -->
     <div id="root"></div>
+    <!-- Temporary Google Website Translator host. Kept visually hidden because
+         VALAM uses its own language buttons in the app header. -->
+    <div id="google_translate_element" class="notranslate" aria-hidden="true" hidden></div>
+    <script>
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+          pageLanguage: 'en',
+          includedLanguages: 'ta,hi,te,kn,ml',
+          autoDisplay: false
+        }, 'google_translate_element');
+      }
+    </script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     <script type="module" src="/main.tsx"></script>
     <!-- figma:body-end -->
   </body>

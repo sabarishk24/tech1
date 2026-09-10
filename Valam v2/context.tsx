@@ -14,7 +14,7 @@ interface AppContextType {
   login: (email: string, password: string, name?: string, mode?: 'login' | 'register') => Promise<void>;
   logout: () => void;
   language: Language;
-  setLanguage: (lang: Language) => void;
+  setLanguage: (lang: Language) => Promise<void>;
   t: (key: string) => string;
   farmProfile: FarmProfile | null;
   setFarmProfile: (profile: FarmProfile) => void;
@@ -55,7 +55,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [currentScreen, setCurrentScreen] = useState<Screen>('language');
   const [screenHistory, setScreenHistory] = useState<Screen[]>([]);
   const [user, setUser] = useState<User | null>(null);
-  const [language, setLang] = useState<Language>('en');
+  const [language, setLang] = useState<Language>(() => {
+    const saved = window.localStorage.getItem('valam-language');
+    return saved === 'ta' || saved === 'hi' || saved === 'te' || saved === 'kn' || saved === 'ml' || saved === 'en'
+      ? saved
+      : 'en';
+  });
   const [farmProfile, setFarmProfileState] = useState<FarmProfile | null>(null);
   const [alerts, setAlerts] = useState<Alert[]>(INITIAL_ALERTS);
   const [pdfDownloads, setPdfDownloads] = useState(0);
@@ -97,7 +102,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const loadAccount = useCallback(async (authUser: { id: string; email?: string; user_metadata: Record<string, unknown> }) => {
     const client = requireSupabase();
     const [{ data: profile, error: profileError }, { data: farms }, { data: entries }, { data: enquiries }] = await Promise.all([
-      client.from('profiles').select('full_name, phone, role').eq('id', authUser.id).single(),
+      client.from('profiles').select('full_name, phone, role, preferred_language').eq('id', authUser.id).single(),
       client.from('farms').select('*, farm_crops(crop_name)').eq('farmer_id', authUser.id).order('created_at', { ascending: true }).limit(1),
       client.from('ledger_entries').select('*').eq('farmer_id', authUser.id).order('entry_date', { ascending: false }),
       client.from('market_enquiries').select('*').eq('farmer_id', authUser.id).order('created_at', { ascending: false }),
@@ -110,6 +115,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       email: authUser.email,
       role: profile.role,
     });
+    const savedLanguage = window.localStorage.getItem('valam-language');
+    const profileLanguage = profile.preferred_language;
+    const hasSavedLanguage = savedLanguage === 'en' || savedLanguage === 'ta' || savedLanguage === 'hi' || savedLanguage === 'te' || savedLanguage === 'kn' || savedLanguage === 'ml';
+    const hasProfileLanguage = profileLanguage === 'en' || profileLanguage === 'ta' || profileLanguage === 'hi' || profileLanguage === 'te' || profileLanguage === 'kn' || profileLanguage === 'ml';
+    // A choice just made in this browser must not be overwritten by an older
+    // profile value while Google Translate reloads the page.
+    const preferredLanguage = hasSavedLanguage ? savedLanguage : hasProfileLanguage ? profileLanguage : 'en';
+    if (preferredLanguage) {
+      setLang(preferredLanguage);
+      window.localStorage.setItem('valam-language', preferredLanguage);
+      document.documentElement.lang = preferredLanguage;
+    }
     const farm = farms?.[0];
     setFarmProfileState(farm ? {
       district: farm.district,
@@ -178,9 +195,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const t = useCallback((key: string) => getTranslation(language, key), [language]);
+  // The temporary Google widget needs English source text on each reload.
+  // Our bundled catalogue remains available for the later production version.
+  const t = useCallback((key: string) => getTranslation('en', key), []);
 
-  const setLanguage = useCallback((lang: Language) => setLang(lang), []);
+  const setLanguage = useCallback(async (lang: Language) => {
+    setLang(lang);
+    window.localStorage.setItem('valam-language', lang);
+    document.documentElement.lang = lang;
+    if (user && supabase) {
+      const { error } = await supabase.from('profiles').update({ preferred_language: lang }).eq('id', user.id);
+      if (error) console.error('Could not save language preference', error);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
 
   const login = useCallback(async (email: string, password: string, name?: string, mode: 'login' | 'register' = 'login') => {
     const client = requireSupabase();

@@ -1,25 +1,24 @@
 import { useApp } from '../context';
 import { Language } from '../types';
 import valamLogo from '../imports/WhatsApp_Image_2026-09-10_at_12.25.49_AM.jpeg';
+import { applyGooglePageTranslation } from '../googleTranslate';
 
 const LANGUAGES: { code: Language; native: string; english: string; script: string; desc: string }[] = [
   { code: 'en', native: 'English', english: 'English', script: 'Aa', desc: 'Default language' },
   { code: 'ta', native: 'தமிழ்', english: 'Tamil', script: 'அ', desc: 'தமிழ்நாடு' },
   { code: 'hi', native: 'हिंदी', english: 'Hindi', script: 'अ', desc: 'भारत की भाषा' },
-];
-
-const COMING_SOON = [
-  { code: 'kn', native: 'ಕನ್ನಡ', english: 'Kannada' },
-  { code: 'ml', native: 'മലയാളം', english: 'Malayalam' },
-  { code: 'te', native: 'తెలుగు', english: 'Telugu' },
+  { code: 'te', native: 'తెలుగు', english: 'Telugu', script: 'అ', desc: 'భారత భాష' },
+  { code: 'kn', native: 'ಕನ್ನಡ', english: 'Kannada', script: 'ಅ', desc: 'ಭಾರತದ ಭಾಷೆ' },
+  { code: 'ml', native: 'മലയാളം', english: 'Malayalam', script: 'അ', desc: 'ഇന്ത്യയുടെ ഭാഷ' },
 ];
 
 export default function LanguageScreen() {
   const { language, setLanguage, navigate } = useApp();
 
-  const handleSelect = (lang: Language) => {
-    setLanguage(lang);
-    navigate('auth');
+  const handleSelect = async (lang: Language) => {
+    await setLanguage(lang);
+    if (lang === language) navigate('auth');
+    else applyGooglePageTranslation(lang);
   };
 
   return (
@@ -35,7 +34,7 @@ export default function LanguageScreen() {
 
       {/* Language selection */}
       <div className="flex-1 px-5 pt-8 pb-6 flex flex-col gap-4 max-w-sm mx-auto w-full">
-        <h2 className="text-lg font-bold text-text text-center mb-2">Choose your language<br /><span className="text-muted text-base font-normal">மொழியை தேர்ந்தெடுக்கவும் / भाषा चुनें</span></h2>
+        <h2 className="text-lg font-bold text-text text-center mb-2">Choose your language<br /><span className="text-muted text-base font-normal">மொழியை தேர்ந்தெடுக்கவும் / भाषा चुनें / మీ భాషను ఎంచుకోండి</span></h2>
 
         {LANGUAGES.map(lang => (
           <button
@@ -66,23 +65,11 @@ export default function LanguageScreen() {
           </button>
         ))}
 
-        {/* Coming soon */}
-        <div className="mt-2">
-          <p className="text-xs text-muted text-center mb-3 font-medium">Coming soon</p>
-          <div className="flex gap-2 justify-center">
-            {COMING_SOON.map(l => (
-              <div key={l.code} className="flex items-center gap-2 px-3 py-2 bg-white border border-border rounded-[12px] opacity-50">
-                <span className="text-sm font-medium text-text">{l.native}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
         <button
           onClick={() => handleSelect(language)}
           className="mt-4 w-full bg-primary text-white font-bold py-3.5 rounded-[16px] text-base min-h-[52px] hover:bg-primary-dark transition-all active:scale-[0.98] shadow-sm"
         >
-          {language === 'en' ? 'Continue in English' : language === 'ta' ? 'தமிழில் தொடர்' : 'हिंदी में जारी रखें'}
+          {language === 'en' ? 'Continue in English' : language === 'ta' ? 'தமிழில் தொடர்' : language === 'hi' ? 'हिंदी में जारी रखें' : language === 'te' ? 'తెలుగులో కొనసాగించండి' : language === 'kn' ? 'ಕನ್ನಡದಲ್ಲಿ ಮುಂದುವರಿಯಿರಿ' : 'മലയാളത്തിൽ തുടരുക'}
         </button>
       </div>
     </div>

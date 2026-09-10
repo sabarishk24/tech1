@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useApp } from '../context';
 import { DISTRICT_PRICES, MANDIS, TN_DISTRICTS } from '../data';
 import { Mandi } from '../types';
+import { supabase } from '../supabaseClient';
 import {
   Badge, Button, Card, PhoneIcon, SearchIcon, Sparkline,
   Spinner, Stepper, TrendDownIcon, TrendUpIcon,
@@ -10,6 +11,26 @@ import { ScreenHeader, WizardFooter } from '../components/Layout';
 
 const CROPS = ['Paddy', 'Groundnut', 'Maize', 'Turmeric', 'Cotton', 'Sunflower'];
 const STEP_KEYS = ['smartSell.step1', 'smartSell.step2', 'smartSell.step3', 'smartSell.step4'];
+
+type MarketPriceRow = { id: string; market: string; district: string; modal_price: number; arrival_date: string };
+
+function toMandis(rows: MarketPriceRow[], fallbackDistrict: string): Mandi[] {
+  const grouped = new Map<string, MarketPriceRow[]>();
+  rows.forEach(row => grouped.set(row.market, [...(grouped.get(row.market) ?? []), row]));
+  return [...grouped.entries()].map(([market, history]) => {
+    const ordered = [...history].sort((a, b) => a.arrival_date.localeCompare(b.arrival_date));
+    const newest = ordered[ordered.length - 1];
+    const previous = ordered[ordered.length - 2];
+    const mock = (MANDIS[fallbackDistrict] ?? Object.values(MANDIS).flat()).find(item => item.name === market);
+    return {
+      id: newest.id, name: market, district: newest.district, price: Number(newest.modal_price),
+      trend: !previous ? 'stable' : newest.modal_price > previous.modal_price ? 'up' : newest.modal_price < previous.modal_price ? 'down' : 'stable',
+      distance: mock?.distance ?? 0, commission: mock?.commission ?? 2, transportCost: mock?.transportCost ?? 0,
+      netProfit: Number(newest.modal_price) * 0.98, isBestMatch: false, facilities: mock?.facilities ?? [], contact: mock?.contact ?? '',
+      priceHistory: ordered.slice(-7).map(item => ({ date: item.arrival_date, price: Number(item.modal_price) })),
+    };
+  }).sort((a, b) => b.price - a.price).map((mandi, index) => ({ ...mandi, isBestMatch: index === 0 }));
+}
 
 export default function SmartSellScreen() {
   const { t, farmProfile, back, showToast, addEnquiry, user } = useApp();
@@ -22,10 +43,29 @@ export default function SmartSellScreen() {
   const [districtSearch, setDistrictSearch] = useState('');
   const [loadingMarkets, setLoadingMarkets] = useState(false);
   const [showPool, setShowPool] = useState(false);
+  const [liveMandis, setLiveMandis] = useState<Mandi[] | null>(null);
+  const [marketSource, setMarketSource] = useState<'live' | 'mock'>('mock');
 
   const steps = STEP_KEYS.map(k => t(k));
-  const mandis = MANDIS[selectedDistrict] ?? Object.values(MANDIS).flat().slice(0, 3);
+  const mockMandis = MANDIS[selectedDistrict] ?? Object.values(MANDIS).flat().slice(0, 3);
+  const mandis = liveMandis?.length ? liveMandis : mockMandis;
   const allDistricts = TN_DISTRICTS.filter(d => d.toLowerCase().includes(districtSearch.toLowerCase()));
+
+  useEffect(() => {
+    if (!supabase) return;
+    let active = true;
+    setLiveMandis(null);
+    setMarketSource('mock');
+    supabase.from('market_prices').select('id, market, district, modal_price, arrival_date')
+      .eq('state', farmProfile?.state ?? 'Tamil Nadu').eq('district', selectedDistrict).eq('commodity', crop)
+      .order('arrival_date', { ascending: false }).limit(100)
+      .then(({ data, error }) => {
+        if (!active || error || !data?.length) return;
+        const prices = toMandis(data as MarketPriceRow[], selectedDistrict);
+        if (prices.length) { setLiveMandis(prices); setMarketSource('live'); }
+      });
+    return () => { active = false; };
+  }, [crop, selectedDistrict, farmProfile?.state]);
 
   const handleFindMarkets = async () => {
     setLoadingMarkets(true);
@@ -70,7 +110,7 @@ export default function SmartSellScreen() {
           />
         )}
         {step === 2 && (
-          <Step3Markets mandis={mandis} onSelect={(m) => { setSelectedMandi(m); setStep(3); }} t={t} crop={crop} />
+          <Step3Markets mandis={mandis} onSelect={(m) => { setSelectedMandi(m); setStep(3); }} t={t} crop={crop} source={marketSource} />
         )}
         {step === 3 && selectedMandi && (
           <Step4Detail
@@ -193,8 +233,9 @@ function Step2District({ selected, search, setSearch, districts, prices, onSelec
   );
 }
 
-function Step3Markets({ mandis, onSelect, t, crop }: {
+function Step3Markets({ mandis, onSelect, t, crop, source }: {
   mandis: Mandi[]; onSelect: (m: Mandi) => void; t: (k: string) => string; crop: string;
+  source: 'live' | 'mock';
 }) {
   const [sortBy, setSortBy] = useState<'price' | 'profit' | 'distance'>('profit');
   const sorted = [...mandis].sort((a, b) => {
@@ -206,7 +247,7 @@ function Step3Markets({ mandis, onSelect, t, crop }: {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted">{mandis.length} mandis found for <span className="font-semibold text-text">{crop}</span></p>
+        <p className="text-sm text-muted">{mandis.length} mandis found for <span className="font-semibold text-text">{crop}</span>{source === 'mock' && <span className="block text-[11px] text-amber-700">Showing presentation backup prices</span>}</p>
         <div className="flex gap-1">
           {(['profit', 'price', 'distance'] as const).map(s => (
             <button key={s} onClick={() => setSortBy(s)}

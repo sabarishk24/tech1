@@ -1,4 +1,6 @@
-export type Language = 'en' | 'ta' | 'hi';
+// These are interface languages. Values that a farmer or provider enters are
+// deliberately kept as-is; we never translate or rewrite user-owned data.
+export type Language = 'en' | 'ta' | 'hi' | 'te' | 'kn' | 'ml';
 export type UserRole = 'farmer' | 'provider';
 
 export type Screen =

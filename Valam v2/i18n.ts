@@ -1,6 +1,6 @@
 import { Language } from "./types"
 
-const translations: Record<Language, Record<string, string>> = {
+const translations: Partial<Record<Language, Record<string, string>>> = {
   en: {
     "app.name": "VALAM",
     "app.tagline": "Your Smart Farming Companion",
@@ -709,6 +709,42 @@ const translations: Record<Language, Record<string, string>> = {
   },
 }
 
+// New languages are intentionally bundled with the app.  This keeps the
+// interface free to use, works without a translation service, and means no
+// farmer or provider data is ever sent to a third party for translation.
+const additionalTranslations: Partial<Record<Language, Record<string, string>>> = {
+  te: {
+    'app.name': 'వளம்', 'app.tagline': 'మీ స్మార్ట్ వ్యవసాయ సహచరుడు',
+    'nav.home': 'హోమ్', 'nav.farm': 'పొలం', 'nav.smartSell': 'స్మార్ట్ అమ్మకం', 'nav.more': 'మరిన్ని', 'nav.estimator': 'అంచనాకర్త', 'nav.amenities': 'సేవలు', 'nav.ledger': 'లెడ్జర్', 'nav.alerts': 'హెచ్చరికలు', 'nav.schemes': 'పథకాలు', 'nav.loans': 'రుణాలు', 'nav.disease': 'వ్యాధి గుర్తింపు', 'nav.profile': 'ప్రొఫైల్', 'nav.settings': 'సెట్టింగ్‌లు', 'nav.provider': 'సేవా ప్రదాత డ్యాష్‌బోర్డ్', 'nav.history': 'నా చరిత్ర', 'nav.help': 'సహాయం మరియు సంప్రదింపు',
+    'common.back': 'వెనుకకు', 'common.continue': 'కొనసాగించు', 'common.skip': 'ఇప్పటికి దాటవేయి', 'common.save': 'సేవ్ చేయి', 'common.cancel': 'రద్దు చేయి', 'common.confirm': 'నిర్ధారించు', 'common.search': 'వెతకండి', 'common.filter': 'ఫిల్టర్', 'common.sort': 'క్రమబద్ధీకరించు', 'common.loading': 'లోడ్ అవుతోంది...', 'common.error': 'ఏదో తప్పు జరిగింది', 'common.offline': 'మీరు ఆఫ్‌లైన్‌లో ఉన్నారు', 'common.retry': 'మళ్లీ ప్రయత్నించండి', 'common.add': 'జోడించు', 'common.edit': 'సవరించు', 'common.delete': 'తొలగించు', 'common.view': 'చూడండి', 'common.close': 'మూసివేయి', 'common.yes': 'అవును', 'common.no': 'కాదు', 'common.perAcre': 'ఎకరానికి', 'common.acres': 'ఎకరాలు', 'common.quintals': 'క్వింటాళ్లు', 'common.perQuintal': '/ క్వింటాల్', 'common.km': 'కి.మీ. దూరం',
+    'lang.select': 'భాషను ఎంచుకోండి', 'lang.en': 'English', 'lang.ta': 'தமிழ்', 'lang.hi': 'हिंदी', 'lang.continue': 'తెలుగులో కొనసాగించండి',
+    'auth.title': 'వளம்కు స్వాగతం', 'auth.subtitle': 'డేటా ఆధారిత సమాచారం ద్వారా రైతులకు శక్తినివ్వడం', 'auth.email': 'ఇమెయిల్', 'auth.name': 'పూర్తి పేరు', 'auth.login': 'లాగ్ ఇన్', 'auth.register': 'నమోదు చేయండి', 'auth.haveAccount': 'ఇప్పటికే ఖాతా ఉందా?', 'auth.newUser': 'ఖాతా లేదా?',
+    'farm.title': 'పొలం ప్రొఫైల్', 'farm.subtitle': 'మీ అనుభవాన్ని వ్యక్తిగతీకరించడంలో మాకు సహాయపడండి', 'farm.district': 'జిల్లా', 'farm.state': 'రాష్ట్రం', 'farm.landSize': 'భూమి పరిమాణం (ఎకరాలు)', 'farm.soil': 'నేల రకం', 'farm.crops': 'ప్రస్తుత పంటలు', 'farm.irrigation': 'నీటిపారుదల వనరు', 'farm.incomplete': 'అసంపూర్ణం',
+    'home.greeting': 'శుభోదయం', 'home.weather': 'వాతావరణం', 'home.alerts': 'హెచ్చరికలు', 'home.quickActions': 'త్వరిత చర్యలు', 'home.ledger': 'లెడ్జర్ సారాంశం',
+    'estimator.title': 'పంట అంచనాకర్త', 'smartSell.title': 'స్మార్ట్ అమ్మకం', 'amenities.title': 'సేవల కేంద్రం', 'ledger.title': 'లెడ్జర్', 'alerts.title': 'హెచ్చరికలు', 'schemes.title': 'పథకాలు మరియు రుణాలు', 'profile.title': 'నా ప్రొఫైల్', 'profile.farmer': 'రైతు', 'profile.provider': 'సేవా ప్రదాత', 'profile.logout': 'లాగ్ అవుట్', 'disease.title': 'పంట వ్యాధి గుర్తింపు'
+  },
+  kn: {
+    'app.name': 'ವளம்', 'app.tagline': 'ನಿಮ್ಮ ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಸಂಗಾತಿ',
+    'nav.home': 'ಮುಖಪುಟ', 'nav.farm': 'ಹೊಲ', 'nav.smartSell': 'ಸ್ಮಾರ್ಟ್ ಮಾರಾಟ', 'nav.more': 'ಇನ್ನಷ್ಟು', 'nav.estimator': 'ಅಂದಾಜುಗಾರ', 'nav.amenities': 'ಸೇವೆಗಳು', 'nav.ledger': 'ಲೆಡ್ಜರ್', 'nav.alerts': 'ಎಚ್ಚರಿಕೆಗಳು', 'nav.schemes': 'ಯೋಜನೆಗಳು', 'nav.loans': 'ಸಾಲಗಳು', 'nav.disease': 'ರೋಗ ಪತ್ತೆ', 'nav.profile': 'ಪ್ರೊಫೈಲ್', 'nav.settings': 'ಸೆಟ್ಟಿಂಗ್‌ಗಳು', 'nav.provider': 'ಸೇವಾ ಪೂರೈಕೆದಾರ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್', 'nav.history': 'ನನ್ನ ಇತಿಹಾಸ', 'nav.help': 'ಸಹಾಯ ಮತ್ತು ಸಂಪರ್ಕ',
+    'common.back': 'ಹಿಂದೆ', 'common.continue': 'ಮುಂದುವರಿಸಿ', 'common.skip': 'ಈಗ ಬಿಟ್ಟುಬಿಡಿ', 'common.save': 'ಉಳಿಸಿ', 'common.cancel': 'ರದ್ದುಮಾಡಿ', 'common.confirm': 'ದೃಢೀಕರಿಸಿ', 'common.search': 'ಹುಡುಕಿ', 'common.filter': 'ಫಿಲ್ಟರ್', 'common.sort': 'ವಿಂಗಡಿಸಿ', 'common.loading': 'ಲೋಡ್ ಆಗುತ್ತಿದೆ...', 'common.error': 'ಏನೋ ತಪ್ಪಾಗಿದೆ', 'common.offline': 'ನೀವು ಆಫ್‌ಲೈನ್‌ನಲ್ಲಿದ್ದೀರಿ', 'common.retry': 'ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ', 'common.add': 'ಸೇರಿಸಿ', 'common.edit': 'ತಿದ್ದು', 'common.delete': 'ಅಳಿಸಿ', 'common.view': 'ವೀಕ್ಷಿಸಿ', 'common.close': 'ಮುಚ್ಚಿ', 'common.yes': 'ಹೌದು', 'common.no': 'ಇಲ್ಲ', 'common.perAcre': 'ಎಕರೆಗೆ', 'common.acres': 'ಎಕರೆಗಳು', 'common.quintals': 'ಕ್ವಿಂಟಾಲ್‌ಗಳು', 'common.perQuintal': '/ ಕ್ವಿಂಟಾಲ್', 'common.km': 'ಕಿ.ಮೀ. ದೂರ',
+    'lang.select': 'ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ', 'lang.en': 'English', 'lang.ta': 'தமிழ்', 'lang.hi': 'हिंदी', 'lang.continue': 'ಕನ್ನಡದಲ್ಲಿ ಮುಂದುವರಿಯಿರಿ',
+    'auth.title': 'ವளம்ಗೆ ಸ್ವಾಗತ', 'auth.subtitle': 'ದತ್ತಾಂಶ ಆಧಾರಿತ ಒಳನೋಟಗಳೊಂದಿಗೆ ರೈತರನ್ನು ಸಬಲೀಕರಿಸುವುದು', 'auth.email': 'ಇಮೇಲ್', 'auth.name': 'ಪೂರ್ಣ ಹೆಸರು', 'auth.login': 'ಲಾಗ್ ಇನ್', 'auth.register': 'ನೋಂದಾಯಿಸಿ', 'auth.haveAccount': 'ಈಗಾಗಲೇ ಖಾತೆ ಇದೆಯೇ?', 'auth.newUser': 'ಖಾತೆ ಇಲ್ಲವೇ?',
+    'farm.title': 'ಹೊಲದ ಪ್ರೊಫೈಲ್', 'farm.subtitle': 'ನಿಮ್ಮ ಅನುಭವವನ್ನು ವೈಯಕ್ತೀಕರಿಸಲು ಸಹಾಯ ಮಾಡಿ', 'farm.district': 'ಜಿಲ್ಲೆ', 'farm.state': 'ರಾಜ್ಯ', 'farm.landSize': 'ಭೂಮಿಯ ಗಾತ್ರ (ಎಕರೆಗಳು)', 'farm.soil': 'ಮಣ್ಣಿನ ವಿಧ', 'farm.crops': 'ಪ್ರಸ್ತುತ ಬೆಳೆಗಳು', 'farm.irrigation': 'ನೀರಾವರಿ ಮೂಲ', 'farm.incomplete': 'ಅಪೂರ್ಣ',
+    'home.greeting': 'ಶುಭೋದಯ', 'home.weather': 'ಹವಾಮಾನ', 'home.alerts': 'ಎಚ್ಚರಿಕೆಗಳು', 'home.quickActions': 'ತ್ವರಿತ ಕ್ರಿಯೆಗಳು', 'home.ledger': 'ಲೆಡ್ಜರ್ ಸಾರಾಂಶ',
+    'estimator.title': 'ಬೆಳೆ ಅಂದಾಜುಗಾರ', 'smartSell.title': 'ಸ್ಮಾರ್ಟ್ ಮಾರಾಟ', 'amenities.title': 'ಸೇವೆಗಳ ಕೇಂದ್ರ', 'ledger.title': 'ಲೆಡ್ಜರ್', 'alerts.title': 'ಎಚ್ಚರಿಕೆಗಳು', 'schemes.title': 'ಯೋಜನೆಗಳು ಮತ್ತು ಸಾಲಗಳು', 'profile.title': 'ನನ್ನ ಪ್ರೊಫೈಲ್', 'profile.farmer': 'ರೈತ', 'profile.provider': 'ಸೇವಾ ಪೂರೈಕೆದಾರ', 'profile.logout': 'ಲಾಗ್ ಔಟ್', 'disease.title': 'ಬೆಳೆ ರೋಗ ಪತ್ತೆ'
+  },
+  ml: {
+    'app.name': 'വളം', 'app.tagline': 'നിങ്ങളുടെ സ്മാർട്ട് കൃഷി സഹായി',
+    'nav.home': 'ഹോം', 'nav.farm': 'കൃഷിയിടം', 'nav.smartSell': 'സ്മാർട്ട് വിൽപ്പന', 'nav.more': 'കൂടുതൽ', 'nav.estimator': 'വിള കണക്കാക്കൽ', 'nav.amenities': 'സേവനങ്ങൾ', 'nav.ledger': 'ലെഡ്ജർ', 'nav.alerts': 'അറിയിപ്പുകൾ', 'nav.schemes': 'പദ്ധതികൾ', 'nav.loans': 'വായ്പകൾ', 'nav.disease': 'രോഗനിർണയം', 'nav.profile': 'പ്രൊഫൈൽ', 'nav.settings': 'ക്രമീകരണങ്ങൾ', 'nav.provider': 'സേവനദാതാവിന്റെ ഡാഷ്ബോർഡ്', 'nav.history': 'എന്റെ ചരിത്രം', 'nav.help': 'സഹായവും ബന്ധപ്പെടലും',
+    'common.back': 'തിരികെ', 'common.continue': 'തുടരുക', 'common.skip': 'ഇപ്പോൾ ഒഴിവാക്കുക', 'common.save': 'സേവ് ചെയ്യുക', 'common.cancel': 'റദ്ദാക്കുക', 'common.confirm': 'സ്ഥിരീകരിക്കുക', 'common.search': 'തിരയുക', 'common.filter': 'ഫിൽട്ടർ', 'common.sort': 'ക്രമീകരിക്കുക', 'common.loading': 'ലോഡ് ചെയ്യുന്നു...', 'common.error': 'എന്തോ തെറ്റായി', 'common.offline': 'നിങ്ങൾ ഓഫ്‌ലൈനിലാണ്', 'common.retry': 'വീണ്ടും ശ്രമിക്കുക', 'common.add': 'ചേർക്കുക', 'common.edit': 'തിരുത്തുക', 'common.delete': 'നീക്കുക', 'common.view': 'കാണുക', 'common.close': 'അടയ്ക്കുക', 'common.yes': 'അതെ', 'common.no': 'ഇല്ല', 'common.perAcre': 'ഏക്കറിന്', 'common.acres': 'ഏക്കർ', 'common.quintals': 'ക്വിന്റൽ', 'common.perQuintal': '/ ക്വിന്റൽ', 'common.km': 'കി.മീ. അകലെ',
+    'lang.select': 'ഭാഷ തിരഞ്ഞെടുക്കുക', 'lang.en': 'English', 'lang.ta': 'தமிழ்', 'lang.hi': 'हिंदी', 'lang.continue': 'മലയാളത്തിൽ തുടരുക',
+    'auth.title': 'വളത്തിലേക്ക് സ്വാഗതം', 'auth.subtitle': 'ഡാറ്റാ അധിഷ്ഠിത അറിവിലൂടെ കർഷകരെ ശക്തിപ്പെടുത്തുന്നു', 'auth.email': 'ഇമെയിൽ', 'auth.name': 'പൂർണ്ണ പേര്', 'auth.login': 'ലോഗിൻ', 'auth.register': 'രജിസ്റ്റർ ചെയ്യുക', 'auth.haveAccount': 'ഇതിനകം അക്കൗണ്ട് ഉണ്ടോ?', 'auth.newUser': 'അക്കൗണ്ട് ഇല്ലേ?',
+    'farm.title': 'കൃഷിയിട പ്രൊഫൈൽ', 'farm.subtitle': 'നിങ്ങളുടെ അനുഭവം വ്യക്തിഗതമാക്കാൻ സഹായിക്കുക', 'farm.district': 'ജില്ല', 'farm.state': 'സംസ്ഥാനം', 'farm.landSize': 'ഭൂമിയുടെ വലുപ്പം (ഏക്കർ)', 'farm.soil': 'മണ്ണിന്റെ തരം', 'farm.crops': 'നിലവിലെ വിളകൾ', 'farm.irrigation': 'ജലസേചന ഉറവിടം', 'farm.incomplete': 'പൂർത്തിയായിട്ടില്ല',
+    'home.greeting': 'സുപ്രഭാതം', 'home.weather': 'കാലാവസ്ഥ', 'home.alerts': 'അറിയിപ്പുകൾ', 'home.quickActions': 'ദ്രുത പ്രവർത്തനങ്ങൾ', 'home.ledger': 'ലെഡ്ജർ സംഗ്രഹം',
+    'estimator.title': 'വിള കണക്കാക്കൽ', 'smartSell.title': 'സ്മാർട്ട് വിൽപ്പന', 'amenities.title': 'സേവന കേന്ദ്രം', 'ledger.title': 'ലെഡ്ജർ', 'alerts.title': 'അറിയിപ്പുകൾ', 'schemes.title': 'പദ്ധതികളും വായ്പകളും', 'profile.title': 'എന്റെ പ്രൊഫൈൽ', 'profile.farmer': 'കർഷകൻ', 'profile.provider': 'സേവനദാതാവ്', 'profile.logout': 'ലോഗ് ഔട്ട്', 'disease.title': 'വിള രോഗനിർണയം'
+  }
+};
+
 export function getTranslation(lang: Language, key: string): string {
-  return translations[lang][key] ?? translations["en"][key] ?? key
+  return additionalTranslations[lang]?.[key] ?? translations[lang]?.[key] ?? translations.en?.[key] ?? key
 }
