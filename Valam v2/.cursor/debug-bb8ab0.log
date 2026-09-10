@@ -1,0 +1,27 @@
+{"sessionId":"bb8ab0","hypothesisId":"C","location":"App.tsx:AppRouter","message":"router render","data":{"currentScreen":"language","isAuthenticated":false,"isOnline":true},"timestamp":1788999164185}
+{"sessionId":"bb8ab0","hypothesisId":"C","location":"App.tsx:AppRouter","message":"router render","data":{"currentScreen":"language","isAuthenticated":false,"isOnline":true},"timestamp":1788999164185}
+{"sessionId":"bb8ab0","hypothesisId":"C","location":"App.tsx:AppRouter","message":"router render","data":{"currentScreen":"language","isAuthenticated":false,"isOnline":true},"timestamp":1788999167727}
+{"sessionId":"bb8ab0","hypothesisId":"C","location":"App.tsx:AppRouter","message":"router render","data":{"currentScreen":"language","isAuthenticated":false,"isOnline":true},"timestamp":1788999167727}
+{"sessionId":"bb8ab0","hypothesisId":"C","location":"App.tsx:AppRouter","message":"router render","data":{"currentScreen":"language","isAuthenticated":false,"isOnline":true},"timestamp":1788999168080}
+{"sessionId":"bb8ab0","hypothesisId":"C","location":"App.tsx:AppRouter","message":"router render","data":{"currentScreen":"language","isAuthenticated":false,"isOnline":true},"timestamp":1788999168081}
+{"sessionId":"bb8ab0","hypothesisId":"C","location":"App.tsx:AppRouter","message":"router render","data":{"currentScreen":"language","isAuthenticated":false,"isOnline":true},"timestamp":1788999168375}
+{"sessionId":"bb8ab0","hypothesisId":"C","location":"App.tsx:AppRouter","message":"router render","data":{"currentScreen":"language","isAuthenticated":false,"isOnline":true},"timestamp":1788999168375}
+{"sessionId":"bb8ab0","hypothesisId":"C","location":"App.tsx:AppRouter","message":"router render","data":{"currentScreen":"language","isAuthenticated":false,"isOnline":true},"timestamp":1788999168593}
+{"sessionId":"bb8ab0","hypothesisId":"C","location":"App.tsx:AppRouter","message":"router render","data":{"currentScreen":"language","isAuthenticated":false,"isOnline":true},"timestamp":1788999168593}
+{"sessionId":"bb8ab0","hypothesisId":"C","location":"App.tsx:AppRouter","message":"router render","data":{"currentScreen":"language","isAuthenticated":false,"isOnline":true},"timestamp":1788999168771}
+{"sessionId":"bb8ab0","hypothesisId":"C","location":"App.tsx:AppRouter","message":"router render","data":{"currentScreen":"language","isAuthenticated":false,"isOnline":true},"timestamp":1788999168771}
+{"sessionId":"bb8ab0","hypothesisId":"C","location":"App.tsx:AppRouter","message":"router render","data":{"currentScreen":"auth","isAuthenticated":false,"isOnline":true},"timestamp":1788999170388}
+{"sessionId":"bb8ab0","hypothesisId":"C","location":"App.tsx:AppRouter","message":"router render","data":{"currentScreen":"auth","isAuthenticated":false,"isOnline":true},"timestamp":1788999170388}
+{"sessionId":"bb8ab0","hypothesisId":"B","location":"AuthScreen.tsx:mount","message":"AuthScreen mounted","data":{"step":"phone","mode":"login","phoneLen":0},"timestamp":1788999170390}
+{"sessionId":"bb8ab0","hypothesisId":"B","location":"AuthScreen.tsx:unmount","message":"AuthScreen unmounted","data":{"step":"phone","mode":"login"},"timestamp":1788999170390}
+{"sessionId":"bb8ab0","hypothesisId":"B","location":"AuthScreen.tsx:step","message":"auth step changed","data":{"step":"phone","phoneLen":0,"loading":false,"error":""},"timestamp":1788999170390}
+{"sessionId":"bb8ab0","hypothesisId":"B","location":"AuthScreen.tsx:mount","message":"AuthScreen mounted","data":{"step":"phone","mode":"login","phoneLen":0},"timestamp":1788999170390}
+{"sessionId":"bb8ab0","hypothesisId":"B","location":"AuthScreen.tsx:step","message":"auth step changed","data":{"step":"phone","phoneLen":0,"loading":false,"error":""},"timestamp":1788999170390}
+{"sessionId":"bb8ab0","hypothesisId":"D","location":"AuthScreen.tsx:handleSendOTP","message":"send OTP clicked","data":{"phoneLen":10,"phoneLast4":"3210","mode":"login","nameLen":0,"online":true},"timestamp":1788999176515}
+{"sessionId":"bb8ab0","hypothesisId":"A","location":"api.ts:request","message":"api response","data":{"path":"/api/auth/request-otp","status":200,"ok":true,"hasOtp":true,"err":null},"timestamp":1788999176538}
+{"sessionId":"bb8ab0","hypothesisId":"A","location":"AuthScreen.tsx:handleSendOTP:ok","message":"requestOtp succeeded","data":{"ok":true,"hasOtp":true,"otpLen":6,"isNewUser":true},"timestamp":1788999176538}
+{"sessionId":"bb8ab0","hypothesisId":"B","location":"AuthScreen.tsx:step","message":"auth step changed","data":{"step":"otp","phoneLen":10,"loading":false,"error":""},"timestamp":1788999176543}
+{"sessionId":"bb8ab0","hypothesisId":"A","location":"api.ts:request","message":"api response","data":{"path":"/api/auth/verify","status":200,"ok":true,"hasOtp":false,"err":null},"timestamp":1788999179790}
+{"sessionId":"bb8ab0","hypothesisId":"C","location":"App.tsx:AppRouter","message":"router render","data":{"currentScreen":"home","isAuthenticated":true,"isOnline":true},"timestamp":1788999179790}
+{"sessionId":"bb8ab0","hypothesisId":"C","location":"App.tsx:AppRouter","message":"router render","data":{"currentScreen":"home","isAuthenticated":true,"isOnline":true},"timestamp":1788999179791}
+{"sessionId":"bb8ab0","hypothesisId":"B","location":"AuthScreen.tsx:unmount","message":"AuthScreen unmounted","data":{"step":"phone","mode":"login"},"timestamp":1788999179845}

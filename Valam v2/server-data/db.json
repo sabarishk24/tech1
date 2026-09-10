@@ -1,0 +1,234 @@
+{
+  "users": {
+    "1234567890": {
+      "id": "e2975a96-c29b-4af3-98fd-7aec4259355b",
+      "name": "Farmer",
+      "phone": "+911234567890",
+      "role": "farmer",
+      "createdAt": "2026-09-10T02:47:20.958Z",
+      "state": {
+        "farmProfile": null,
+        "alerts": [],
+        "pdfDownloads": 0,
+        "bundle": [],
+        "hasBackup": false,
+        "ledgerEntries": [],
+        "enquiries": [],
+        "activityLog": [],
+        "upcomingEvents": []
+      }
+    },
+    "6381634242": {
+      "id": "1c416fb9-949d-4062-a8e2-6e21634f6e2d",
+      "name": "Farmer",
+      "phone": "+916381634242",
+      "role": "farmer",
+      "createdAt": "2026-09-09T23:14:14.836Z",
+      "state": {
+        "farmProfile": null,
+        "alerts": [],
+        "pdfDownloads": 1,
+        "bundle": [],
+        "hasBackup": false,
+        "ledgerEntries": [
+          {
+            "id": "l1788996423478",
+            "type": "expense",
+            "amount": 500,
+            "category": "Labour",
+            "description": "kk",
+            "date": "2026-09-09",
+            "photoUrl": "mock-photo"
+          }
+        ],
+        "enquiries": [],
+        "activityLog": [
+          {
+            "type": "test",
+            "title": "Soil Test Booked",
+            "detail": "TNAU Lab · Chengalpattu · Sep 18",
+            "timestamp": "2026-09-09T23:14:21.157Z",
+            "icon": "🧪",
+            "id": "act-1788995661157"
+          }
+        ],
+        "upcomingEvents": [
+          {
+            "title": "Soil Test Visit — TNAU Lab",
+            "date": "Sep 18, 2026",
+            "type": "test",
+            "icon": "🧪",
+            "priority": "high",
+            "id": "ev-1788995661157"
+          }
+        ]
+      }
+    },
+    "9874563210": {
+      "id": "950b77f1-fc1b-41d7-8956-d88825dd95d8",
+      "name": "Farmer",
+      "phone": "+919874563210",
+      "role": "farmer",
+      "createdAt": "2026-09-10T00:12:59.780Z",
+      "state": {
+        "farmProfile": null,
+        "alerts": [],
+        "pdfDownloads": 0,
+        "bundle": [],
+        "hasBackup": false,
+        "ledgerEntries": [],
+        "enquiries": [],
+        "activityLog": [],
+        "upcomingEvents": []
+      }
+    },
+    "7208238495": {
+      "id": "ce2ebbf3-a0a7-4d4f-883f-c645c8ef49df",
+      "name": "Dhruv",
+      "phone": "+917208238495",
+      "role": "farmer",
+      "createdAt": "2026-09-10T02:43:46.335Z",
+      "state": {
+        "farmProfile": {
+          "district": "Coimbatore",
+          "state": "Tamil Nadu",
+          "lat": 12.6819,
+          "lng": 79.9754,
+          "landSize": 3,
+          "soilType": "Sandy Loam",
+          "crops": [
+            "Paddy"
+          ],
+          "irrigationType": "Borewell",
+          "isComplete": true
+        },
+        "alerts": [],
+        "pdfDownloads": 3,
+        "bundle": [],
+        "hasBackup": false,
+        "ledgerEntries": [
+          {
+            "id": "l1789012779314",
+            "type": "expense",
+            "amount": 1000,
+            "category": "Fertilizer",
+            "description": "KK",
+            "date": "2026-09-10"
+          }
+        ],
+        "enquiries": [
+          {
+            "id": "enq-1789012727858",
+            "farmer": "Dhruv",
+            "crop": "Paddy",
+            "quantity": "30",
+            "mandi": "Chengalpattu APMC",
+            "date": "2026-09-10",
+            "status": "pending"
+          }
+        ],
+        "activityLog": [
+          {
+            "type": "test",
+            "title": "Soil Test Booked",
+            "detail": "TNAU Lab · Chengalpattu · Sep 18",
+            "timestamp": "2026-09-10T03:56:53.698Z",
+            "icon": "🧪",
+            "id": "act-1789012613698"
+          },
+          {
+            "type": "test",
+            "title": "Soil Test Booked",
+            "detail": "TNAU Lab · Chengalpattu · Sep 18",
+            "timestamp": "2026-09-10T02:45:02.411Z",
+            "icon": "🧪",
+            "id": "act-1789008302411"
+          },
+          {
+            "type": "test",
+            "title": "Soil Test Booked",
+            "detail": "TNAU Lab · Chengalpattu · Sep 18",
+            "timestamp": "2026-09-10T02:44:17.249Z",
+            "icon": "🧪",
+            "id": "act-1789008257249"
+          }
+        ],
+        "upcomingEvents": [
+          {
+            "title": "Soil Test Visit — TNAU Lab",
+            "date": "Sep 18, 2026",
+            "type": "test",
+            "icon": "🧪",
+            "priority": "high",
+            "id": "ev-1789012613698"
+          },
+          {
+            "title": "Soil Test Visit — TNAU Lab",
+            "date": "Sep 18, 2026",
+            "type": "test",
+            "icon": "🧪",
+            "priority": "high",
+            "id": "ev-1789008257249"
+          }
+        ]
+      }
+    }
+  },
+  "otp": {
+    "1000000000": {
+      "otp": "123456",
+      "expiresAt": 1788999210678,
+      "name": ""
+    },
+    "6381634242": {
+      "otp": "123456",
+      "expiresAt": 1788997996794,
+      "name": ""
+    },
+    "9443680360": {
+      "otp": "123456",
+      "expiresAt": 1788999118037,
+      "name": ""
+    },
+    "9443606380": {
+      "otp": "123456",
+      "expiresAt": 1788997451319,
+      "name": "hh"
+    },
+    "9443680630": {
+      "otp": "123456",
+      "expiresAt": 1788998210194,
+      "name": ""
+    },
+    "9876543210": {
+      "otp": "123456",
+      "expiresAt": 1788997674000,
+      "name": "dd"
+    },
+    "9874561230": {
+      "otp": "123456",
+      "expiresAt": 1788997702162,
+      "name": ""
+    },
+    "9874562100": {
+      "otp": "123456",
+      "expiresAt": 1788998018342,
+      "name": "jj"
+    },
+    "9874563100": {
+      "otp": "123456",
+      "expiresAt": 1788998043091,
+      "name": ""
+    },
+    "9845321000": {
+      "otp": "123456",
+      "expiresAt": 1788998107463,
+      "name": ""
+    },
+    "9436803600": {
+      "otp": "123456",
+      "expiresAt": 1788998170967,
+      "name": ""
+    }
+  }
+}
