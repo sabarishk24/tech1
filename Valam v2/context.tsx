@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { DEMO_FARM, DEMO_USER, INITIAL_ALERTS, INITIAL_LEDGER } from './data';
+import { INITIAL_ALERTS, INITIAL_LEDGER } from './data';
 import { getTranslation } from './i18n';
-import { api, BackendState } from './api';
+import { requireSupabase, supabase } from './supabaseClient';
 import { ActivityLog, Alert, BundleItem, FarmProfile, Language, LedgerEntry, Screen, ToastData, UpcomingEvent, User } from './types';
 
 interface AppContextType {
@@ -11,7 +11,7 @@ interface AppContextType {
   back: () => void;
   user: User | null;
   isAuthenticated: boolean;
-  login: (phone: string, name?: string, otp?: string) => Promise<void>;
+  login: (email: string, password: string, name?: string, mode?: 'login' | 'register') => Promise<void>;
   logout: () => void;
   language: Language;
   setLanguage: (lang: Language) => void;
@@ -28,6 +28,7 @@ interface AppContextType {
   addToBundle: (item: BundleItem) => void;
   removeFromBundle: (serviceId: string) => void;
   clearBundle: () => void;
+  createBookings: (items: BundleItem[], scheduledFor: string) => Promise<void>;
   hasBackup: boolean;
   setHasBackup: (v: boolean) => void;
   ledgerEntries: LedgerEntry[];
@@ -84,6 +85,64 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const toastIdRef = useRef(0);
 
+  const resetLocalState = useCallback(() => {
+    setUser(null);
+    setFarmProfileState(null);
+    setLedgerEntries([]);
+    setEnquiries([]);
+    setBundle([]);
+    setPdfDownloads(0);
+  }, []);
+
+  const loadAccount = useCallback(async (authUser: { id: string; email?: string; user_metadata: Record<string, unknown> }) => {
+    const client = requireSupabase();
+    const [{ data: profile, error: profileError }, { data: farms }, { data: entries }, { data: enquiries }] = await Promise.all([
+      client.from('profiles').select('full_name, phone, role').eq('id', authUser.id).single(),
+      client.from('farms').select('*, farm_crops(crop_name)').eq('farmer_id', authUser.id).order('created_at', { ascending: true }).limit(1),
+      client.from('ledger_entries').select('*').eq('farmer_id', authUser.id).order('entry_date', { ascending: false }),
+      client.from('market_enquiries').select('*').eq('farmer_id', authUser.id).order('created_at', { ascending: false }),
+    ]);
+    if (profileError) throw profileError;
+    setUser({
+      id: authUser.id,
+      name: profile.full_name || String(authUser.user_metadata.full_name || 'VALAM user'),
+      phone: profile.phone || '',
+      email: authUser.email,
+      role: profile.role,
+    });
+    const farm = farms?.[0];
+    setFarmProfileState(farm ? {
+      district: farm.district,
+      state: farm.state,
+      lat: Number(farm.latitude ?? 0),
+      lng: Number(farm.longitude ?? 0),
+      landSize: Number(farm.land_size_acres),
+      soilType: farm.soil_type ?? '',
+      crops: (farm.farm_crops ?? []).map((crop: { crop_name: string }) => crop.crop_name),
+      irrigationType: farm.irrigation_type ?? '',
+      isComplete: farm.is_complete,
+    } : null);
+    setLedgerEntries((entries ?? []).map(entry => ({
+      id: entry.id,
+      type: entry.entry_type,
+      category: entry.category,
+      amount: Number(entry.amount),
+      description: entry.description ?? '',
+      date: entry.entry_date,
+      photoUrl: entry.receipt_path ?? undefined,
+    })));
+    setEnquiries((enquiries ?? []).map(enquiry => ({
+      id: enquiry.id,
+      farmer: profile.full_name,
+      crop: enquiry.crop_name,
+      quantity: String(enquiry.quantity),
+      mandi: enquiry.market_name,
+      date: enquiry.created_at.slice(0, 10),
+      status: enquiry.status,
+    })));
+    setCurrentScreen('home');
+  }, []);
+
   useEffect(() => {
     const onOnline = () => setIsOnline(true);
     const onOffline = () => setIsOnline(false);
@@ -93,22 +152,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const savedId = localStorage.getItem('valam_user_id');
-    if (!savedId) return;
-    api.getState(savedId).then((state) => {
-      setUser(state.user);
-      setFarmProfileState(state.farmProfile ?? null);
-      setAlerts(state.alerts ?? []);
-      setPdfDownloads(state.pdfDownloads ?? 0);
-      setBundle(state.bundle ?? []);
-      setHasBackup(state.hasBackup ?? false);
-      setLedgerEntries(state.ledgerEntries ?? []);
-      setEnquiries(state.enquiries ?? []);
-      setActivityLog(state.activityLog ?? []);
-      setUpcomingEvents(state.upcomingEvents ?? []);
-      setCurrentScreen('home');
-    }).catch(() => localStorage.removeItem('valam_user_id'));
-  }, []);
+    if (!supabase) return;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) loadAccount(session.user).catch(console.error);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) window.setTimeout(() => loadAccount(session.user).catch(console.error), 0);
+      else resetLocalState();
+    });
+    return () => subscription.unsubscribe();
+  }, [loadAccount, resetLocalState]);
 
   const navigate = useCallback((screen: Screen) => {
     setScreenHistory(h => [...h, currentScreen]);
@@ -129,47 +182,59 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const setLanguage = useCallback((lang: Language) => setLang(lang), []);
 
-  const login = useCallback(async (phone: string, name?: string, otp = '123456') => {
-    const isDemo = phone.replace(/\D/g, '') === '9876543210';
-    const response = await api.verifyOtp(phone, otp, name, isDemo ? { farmProfile: DEMO_FARM, alerts: INITIAL_ALERTS, ledgerEntries: INITIAL_LEDGER, activityLog: activityLog, upcomingEvents: upcomingEvents } : undefined);
-    const state = response as BackendState;
-    const u: User = state.user;
-    setUser(u);
-    localStorage.setItem('valam_user_id', u.id);
-    // Existing/demo accounts retain the original UI data. New accounts start with
-    // an empty farm profile so the app never pretends to know a farmer's soil health.
-    setFarmProfileState(state.farmProfile ?? null);
-    setAlerts(state.alerts ?? []);
-    setPdfDownloads(state.pdfDownloads ?? 0);
-    setBundle(state.bundle ?? []);
-    setHasBackup(state.hasBackup ?? false);
-    setLedgerEntries(state.ledgerEntries ?? []);
-    setEnquiries(state.enquiries ?? []);
-    setActivityLog(state.activityLog ?? []);
-    setUpcomingEvents(state.upcomingEvents ?? []);
-    setCurrentScreen(state.farmProfile?.isComplete === false ? 'home' : 'home');
+  const login = useCallback(async (email: string, password: string, name?: string, mode: 'login' | 'register' = 'login') => {
+    const client = requireSupabase();
+    if (mode === 'register') {
+      const { data, error } = await client.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: name?.trim() || '', role: 'farmer' }, emailRedirectTo: window.location.origin },
+      });
+      if (error) throw error;
+      if (!data.session) throw new Error('Check your email to confirm your VALAM account, then sign in.');
+      await loadAccount(data.session.user);
+    } else {
+      const { data, error } = await client.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      await loadAccount(data.user);
+    }
     setScreenHistory([]);
-  }, []);
+  }, [loadAccount]);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('valam_user_id');
-    setUser(null);
-    setFarmProfileState(null);
+    supabase?.auth.signOut().catch(console.error);
+    resetLocalState();
     setCurrentScreen('language');
     setScreenHistory([]);
-    setBundle([]);
-    setPdfDownloads(0);
-  }, []);
+  }, [resetLocalState]);
 
-  const persist = useCallback((patch: Partial<BackendState>) => {
-    if (!user) return;
-    api.saveState(user.id, patch).catch(err => console.warn('Backend sync failed:', err));
-  }, [user]);
+  // Remaining demo-only UI state will move to dedicated tables in later steps.
+  const persist = useCallback((_patch: Record<string, unknown>) => undefined, []);
 
   const setFarmProfile = useCallback((profile: FarmProfile) => {
     setFarmProfileState(profile);
-    persist({ farmProfile: profile });
-  }, [persist]);
+    if (!user || !supabase) return;
+    (async () => {
+      const client = requireSupabase();
+      const { data: existing, error: existingError } = await client.from('farms').select('id').eq('farmer_id', user.id).limit(1).maybeSingle();
+      if (existingError) throw existingError;
+      const farmPayload = {
+        farmer_id: user.id, name: 'My Farm', district: profile.district, state: profile.state,
+        land_size_acres: profile.landSize, soil_type: profile.soilType || null,
+        irrigation_type: profile.irrigationType || null, latitude: profile.lat || null,
+        longitude: profile.lng || null, is_complete: profile.isComplete,
+      };
+      const { data: farm, error } = existing
+        ? await client.from('farms').update(farmPayload).eq('id', existing.id).select('id').single()
+        : await client.from('farms').insert(farmPayload).select('id').single();
+      if (error) throw error;
+      await client.from('farm_crops').delete().eq('farm_id', farm.id);
+      if (profile.crops.length) {
+        const { error: cropsError } = await client.from('farm_crops').insert(profile.crops.map(crop_name => ({ farm_id: farm.id, crop_name })));
+        if (cropsError) throw cropsError;
+      }
+    })().catch(err => console.error('Farm profile sync failed:', err));
+  }, [user]);
 
   const markAlertRead = useCallback((id: string) => {
     setAlerts(a => { const next = a.map(alert => alert.id === id ? { ...alert, isRead: true } : alert); persist({ alerts: next }); return next; });
@@ -200,21 +265,79 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const clearBundle = useCallback(() => { setBundle([]); persist({ bundle: [] }); }, [persist]);
 
+  const createBookings = useCallback(async (items: BundleItem[], scheduledFor: string) => {
+    if (!user) throw new Error('Please sign in before creating a booking.');
+    const client = requireSupabase();
+    const { data: farm, error: farmError } = await client.from('farms').select('id').eq('farmer_id', user.id).order('created_at', { ascending: true }).limit(1).maybeSingle();
+    if (farmError) throw farmError;
+    for (const item of items) {
+      const { error } = await client.rpc('create_booking', {
+        requested_service_id: item.serviceId,
+        requested_farm_id: farm?.id ?? null,
+        requested_quantity: item.quantity,
+        requested_for: scheduledFor,
+        requested_notes: null,
+      });
+      if (error) throw error;
+    }
+    setBundle([]);
+  }, [user]);
+
   const addLedgerEntry = useCallback((entry: LedgerEntry) => {
-    setLedgerEntries(l => { const next = [entry, ...l]; persist({ ledgerEntries: next }); return next; });
-  }, [persist]);
+    setLedgerEntries(l => [entry, ...l]);
+    if (!user || !supabase) return;
+    (async () => {
+      const { data, error } = await requireSupabase().from('ledger_entries').insert({
+        farmer_id: user.id,
+        entry_type: entry.type,
+        category: entry.category,
+        amount: entry.amount,
+        description: entry.description || null,
+        entry_date: entry.date,
+        receipt_path: entry.photoUrl || null,
+      }).select().single();
+      if (error) throw error;
+      setLedgerEntries(entries => entries.map(item => item.id === entry.id ? {
+        ...item, id: data.id, date: data.entry_date,
+      } : item));
+    })().catch(err => console.error('Ledger entry sync failed:', err));
+  }, [user]);
 
   const updateLedgerEntry = useCallback((entry: LedgerEntry) => {
-    setLedgerEntries(l => { const next = l.map(x => x.id === entry.id ? entry : x); persist({ ledgerEntries: next }); return next; });
-  }, [persist]);
+    setLedgerEntries(l => l.map(x => x.id === entry.id ? entry : x));
+    if (!user || !supabase) return;
+    requireSupabase().from('ledger_entries').update({
+      entry_type: entry.type, category: entry.category, amount: entry.amount,
+      description: entry.description || null, entry_date: entry.date,
+      receipt_path: entry.photoUrl || null,
+    }).eq('id', entry.id).eq('farmer_id', user.id).then(({ error }) => {
+      if (error) console.error('Ledger entry update failed:', error);
+    });
+  }, [user]);
 
   const deleteLedgerEntry = useCallback((id: string) => {
-    setLedgerEntries(l => { const next = l.filter(x => x.id !== id); persist({ ledgerEntries: next }); return next; });
-  }, [persist]);
+    setLedgerEntries(l => l.filter(x => x.id !== id));
+    if (!user || !supabase) return;
+    requireSupabase().from('ledger_entries').delete().eq('id', id).eq('farmer_id', user.id).then(({ error }) => {
+      if (error) console.error('Ledger entry deletion failed:', error);
+    });
+  }, [user]);
 
   const addEnquiry = useCallback((e: { id: string; farmer: string; crop: string; quantity: string; mandi: string; date: string; status: string }) => {
-    setEnquiries(prev => { const next = [e, ...prev]; persist({ enquiries: next }); return next; });
-  }, [persist]);
+    setEnquiries(prev => [e, ...prev]);
+    if (!user || !supabase) return;
+    (async () => {
+      const { data, error } = await requireSupabase().from('market_enquiries').insert({
+        farmer_id: user.id,
+        crop_name: e.crop,
+        quantity: Number(e.quantity),
+        market_name: e.mandi,
+        district: farmProfile?.district || 'Not specified',
+      }).select().single();
+      if (error) throw error;
+      setEnquiries(items => items.map(item => item.id === e.id ? { ...item, id: data.id, status: data.status } : item));
+    })().catch(err => console.error('Marketplace enquiry sync failed:', err));
+  }, [farmProfile?.district, user]);
 
   const logActivity = useCallback((entry: Omit<ActivityLog, 'id'>) => {
     const id = `act-${Date.now()}`;
@@ -244,7 +367,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       farmProfile, setFarmProfile,
       alerts, markAlertRead, markAllRead, unreadCount,
       pdfDownloads, incrementPdfDownloads,
-      bundle, addToBundle, removeFromBundle, clearBundle, hasBackup, setHasBackup: (v: boolean) => { setHasBackup(v); persist({ hasBackup: v }); },
+      bundle, addToBundle, removeFromBundle, clearBundle, createBookings, hasBackup, setHasBackup: (v: boolean) => { setHasBackup(v); persist({ hasBackup: v }); },
       ledgerEntries, addLedgerEntry, updateLedgerEntry, deleteLedgerEntry,
       toasts, showToast,
       enquiries, addEnquiry,

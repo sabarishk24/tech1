@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useApp } from '../context';
-import { AMENITY_PROVIDERS } from '../data';
+import { requireSupabase, supabase } from '../supabaseClient';
 import { AmenityProvider, AmenityService, BundleItem } from '../types';
 import {
   Avatar, Badge, Button, Card, Modal, PhoneIcon,
@@ -11,15 +11,43 @@ import { ScreenHeader } from '../components/Layout';
 type Tab = 'inputs' | 'machinery' | 'labour';
 
 export default function AmenitiesScreen() {
-  const { t, bundle, addToBundle, removeFromBundle, clearBundle, setHasBackup, showToast, back } = useApp();
+  const { t, bundle, addToBundle, removeFromBundle, clearBundle, createBookings, setHasBackup, showToast, back } = useApp();
   const [tab, setTab] = useState<Tab>('inputs');
   const [search, setSearch] = useState('');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<AmenityProvider | null>(null);
   const [bundleOpen, setBundleOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [catalogue, setCatalogue] = useState<AmenityProvider[]>([]);
+  const [catalogueLoading, setCatalogueLoading] = useState(true);
 
-  const providers = AMENITY_PROVIDERS.filter(p => {
+  useEffect(() => {
+    if (!supabase) return;
+    (async () => {
+      const client = requireSupabase();
+      const [{ data: directory, error: directoryError }, { data: serviceRows, error: serviceError }] = await Promise.all([
+        client.from('provider_directory').select('*'),
+        client.from('services').select('*').eq('is_available', true),
+      ]);
+      if (directoryError) throw directoryError;
+      if (serviceError) throw serviceError;
+      setCatalogue((directory ?? []).map(provider => {
+        const services = (serviceRows ?? []).filter(service => service.provider_id === provider.user_id).map(service => ({
+          id: service.id, name: service.name, unit: service.unit, price: Number(service.price), available: service.is_available,
+        }));
+        return {
+          id: provider.user_id,
+          name: provider.business_name || provider.full_name,
+          type: (serviceRows ?? []).find(service => service.provider_id === provider.user_id)?.category ?? 'inputs',
+          rating: Number(provider.rating), reliability: 100, isVerified: provider.is_verified,
+          jobs: 0, disputes: 0, location: `${provider.district}, ${provider.state}`,
+          distance: 0, services, contact: '', initials: (provider.business_name || provider.full_name).slice(0, 2).toUpperCase(), color: 'bg-primary',
+        } as AmenityProvider;
+      }));
+    })().catch(error => { console.error('Provider catalogue failed:', error); showToast('Could not load providers', 'error'); }).finally(() => setCatalogueLoading(false));
+  }, [showToast]);
+
+  const providers = catalogue.filter(p => {
     if (p.type !== tab) return false;
     if (verifiedOnly && !p.isVerified) return false;
     if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
@@ -42,10 +70,18 @@ export default function AmenitiesScreen() {
     showToast(`Added: ${service.name}`, 'success');
   };
 
-  const handleConfirmBundle = () => {
-    setConfirmOpen(false);
-    clearBundle();
-    showToast(t('amenities.bookingSuccess'), 'success');
+  const handleConfirmBundle = async () => {
+    try {
+      // The first release uses the next morning as the requested slot; providers confirm the final time.
+      const requestedFor = new Date();
+      requestedFor.setDate(requestedFor.getDate() + 1);
+      requestedFor.setHours(9, 0, 0, 0);
+      await createBookings(bundle, requestedFor.toISOString());
+      setConfirmOpen(false);
+      showToast('Booking request sent to the provider.', 'success');
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Could not create booking', 'error');
+    }
   };
 
   const handleCancelBundle = () => {
@@ -109,7 +145,9 @@ export default function AmenitiesScreen() {
 
       {/* Provider list */}
       <div className="flex-1 overflow-y-auto px-4 pb-4 flex flex-col gap-3">
-        {providers.length === 0 ? (
+        {catalogueLoading ? (
+          <div className="text-center py-12 text-muted"><div className="text-3xl mb-2">⏳</div><p className="font-semibold">Loading providers...</p></div>
+        ) : providers.length === 0 ? (
           <div className="text-center py-12 text-muted">
             <div className="text-4xl mb-2">🔍</div>
             <p className="font-semibold">No providers found</p>
@@ -191,7 +229,7 @@ export default function AmenitiesScreen() {
             <span className="font-black text-primary text-xl">₹{bundleTotal.toLocaleString()}</span>
           </div>
           <Card className="bg-amber-50 border-amber-200" padding="sm">
-            <p className="text-xs text-amber-700">Cancelling will auto-save this bundle as backup so you can resume later.</p>
+            <p className="text-xs text-amber-700">The provider will receive this request for tomorrow morning and can confirm the final time.</p>
           </Card>
         </div>
       </Modal>
